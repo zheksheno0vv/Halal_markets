@@ -5,22 +5,30 @@ from .models import *
 class SellerProfileSerializers(serializers.ModelSerializer):
     class Meta:
         model = SellerProfile
-        fields = '__all__'
+        fields = ['id', 'user', 'image', 'full_name', 'shop_name', 'email', 'phone_number', 'description']
 
 
 class CategorySerializers(serializers.ModelSerializer):
     class Meta:
         model = Category
+        fields = ['id', 'category']
+
+
+class ProductImageSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
         fields = '__all__'
 
 
 class ProductSerializer(serializers.ModelSerializer):
     discounted_price = serializers.SerializerMethodField()
-    # product_images = ProductImageSerializer(many=True, read_only=True)
+    product_images = ProductImageSerializers(many=True, read_only=True)
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ['id', 'seller', 'category', 'product_name', 'brand_name', 'country', 'code', 'image', 'ingredients',
+                  'expiration_date', 'package_content', 'effect', 'gender', 'color', 'price', 'discount_percent',
+                  'additional_info', 'created_at']
 
     def get_discounted_price(self, obj):
         return obj.get_discounted_price()
@@ -38,22 +46,16 @@ class ProductDetailSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductImageSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = ProductImage
-        fields = '__all__'
-
-
 class DeliverySerializers(serializers.ModelSerializer):
     class Meta:
         model = Delivery
-        fields = '__all__'
+        fields = ['id', 'product', 'buyer', 'quantity', 'delivery_date', 'created_at', 'status']
 
 
 class DeliveryItemSerializers(serializers.ModelSerializer):
     class Meta:
         model = DeliveryItem
-        fields = '__all__'
+        fields = ['id', 'delivery', 'product', 'quantity']
 
     def get_total(self, obj):
         return obj.total_price()
@@ -62,12 +64,12 @@ class DeliveryItemSerializers(serializers.ModelSerializer):
 class ReviewSerializers(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ['id', 'product', 'user', 'text', 'rating', 'created_at']
 
 
 class ReviewReplySerializers(serializers.ModelSerializer):
     class Meta:
         model = ReviewReply
-        fields = '__all__'
+        fields = ['id', 'review', 'seller', 'text', 'created_at']
 
 

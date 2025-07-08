@@ -1,87 +1,56 @@
 from rest_framework import serializers
 from .models import *
-from users.serializers import UserProfile
 
 
-
-
-class UserProfileSimpleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ['last_name', 'first_name', 'email', 'phone_number']
-
-
-class MainCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MainCategory
-        fields = '__all__'
-
-
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ['id', 'category_name']
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['image']
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(read_only=True, many=True)
+
     class Meta:
         model = Product
-        fields = ['product_image', 'product_name', 'product_price', 'product_quantity']
+        fields = ['id', 'product_name', 'price', 'weight', 'images']
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
+    category = serializers.StringRelatedField()
+
     class Meta:
         model = Product
-        fields = '__all__'
-
-    def get_average_rating(self, obj):
-        return obj.get_average_rating()
-
-
-class ProductRatingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductRating
-        fields = '__all__'
-
-
-class RatingImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RatingImage
-        fields = '__all__'
-
-
-class CartSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cart
-        fields = '__all__'
-
-    def get_total_price(self, obj):
-        return obj.get_total_price()
+        fields = "__all__"
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = ProductListSerializer(read_only=True)
-    product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), write_only=True, source='product')
+    class Meta:
+        model = CartItem
+        fields = "__all__"
+
+
+class CartItemListSerializer(serializers.ModelSerializer):
+    items = ProductListSerializer()
 
     class Meta:
         model = CartItem
-        fields = '__all__'
+        fields = ['id', 'items', 'cart', 'quantity', 'status']
 
 
-class FavoriteSerializer(serializers.ModelSerializer):
+class CartSerializer(serializers.ModelSerializer):
+    total_product_count = serializers.SerializerMethodField()
+    cart_items = CartItemListSerializer(many=True, read_only=True)
+
     class Meta:
-        model = Favorite
-        fields = ['favorite_user', 'created_date']
+        model = Cart
+        fields = ['id', 'user_cart', 'total_product_count', 'cart_items']
 
-
-class FavoriteItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FavoriteItem
-        fields = ['favorite', 'product']
-
-
-class CheckSerializer(serializers.ModelSerializer):
-    user_buyer = UserProfileSimpleSerializer()
-    class Meta:
-        model = Check
-        fields = '__all__'
+    def get_total_product_count(self, obj):
+        return obj.get_total_product_count()

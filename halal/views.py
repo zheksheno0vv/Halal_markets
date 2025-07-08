@@ -3,35 +3,29 @@ from .models import *
 from .serializers import *
 
 
+class CategoryListView(generics.ListAPIView):
+    queryset = Category.objects.all()  # без фильтра parent
+    serializer_class = CategorySimpleSerializer
 
 
-
-class MainCategoryViewSet(viewsets.ModelViewSet):
-    queryset = MainCategory.objects.all()
-    serializer_class = MainCategorySerializer
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryDetailView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+    serializer_class = CategorySimpleSerializer
+    lookup_field = 'pk'
 
 
-class ProductListAPIView(generics.ListAPIView):
-    queryset = Product.objects.all()
+class ProductListByCategoryView(generics.ListAPIView):
     serializer_class = ProductListSerializer
 
-class ProductDetailAPIView(generics.RetrieveAPIView):
+    def get_queryset(self):
+        category_id = self.kwargs['category_id']
+        return Product.objects.filter(category_id=category_id)
+
+
+class ProductDetailView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductDetailSerializer
-
-class ProductRatingViewSet(viewsets.ModelViewSet):
-    queryset = ProductRating.objects.all()
-    serializer_class = ProductRatingSerializer
-
-
-class RatingImageViewSet(viewsets.ModelViewSet):
-    queryset = RatingImage.objects.all()
-    serializer_class = RatingImageSerializer
+    lookup_field = 'pk'
 
 
 class CartViewSet(viewsets.ModelViewSet):
@@ -39,21 +33,25 @@ class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartSerializer
 
 
-class CartItemViewSet(viewsets.ModelViewSet):
+class CartItemCreateAPIView(generics.CreateAPIView):
+    serializer_class = CartItemSerializer
+
+
+class CartItemListApiView(generics.ListAPIView):
     queryset = CartItem.objects.all()
-    serializer_class  = CartItemSerializer
+    serializer_class = CartItemListSerializer
 
 
+class CartItemDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemListSerializer
 
-class FavoriteViewSet(viewsets.ModelViewSet):
-    queryset = Favorite.objects.all()
-    serializer_class = FavoriteSerializer
+
+class CartItemStatusListApiView(generics.ListAPIView):
+    queryset = CartItem.objects.filter(status='в пути')
+    serializer_class = CartItemListSerializer
 
 
-class FavoriteItemViewSet(viewsets.ModelViewSet):
-    queryset = FavoriteItem.objects.all()
-    serializer_class = FavoriteItemSerializer
-
-class CheckViewSet(viewsets.ModelViewSet):
-    queryset = Check.objects.all()
-    serializer_class = CheckSerializer
+class CartItemStatusDetailApiView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CartItem.objects.filter(status='в пути')
+    serializer_class = CartItemListSerializer
