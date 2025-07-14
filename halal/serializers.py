@@ -54,3 +54,20 @@ class CartSerializer(serializers.ModelSerializer):
 
     def get_total_product_count(self, obj):
         return obj.get_total_product_count()
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = '__all__'
+
+class FavoriteItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FavoriteItem
+        fields = '__all__'
+
+class CheckSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Check
+        fields = '__all__'
+

@@ -1,10 +1,10 @@
 from django.urls import path, include
 from rest_framework import routers
-from django.urls import path
 from .views import *
 
-router = routers.DefaultRouter()
+router = routers.SimpleRouter()
 router.register(r'cart', CartViewSet, basename='cart')
+router.register(r'favorite', FavoriteViewSet, basename='favorite')
 
 
 
@@ -22,4 +22,11 @@ urlpatterns = [
 
     path('cart_status/', CartItemStatusListApiView.as_view(), name='cart_current_status'),
     path('cart_status/<int:pk>/', CartItemStatusDetailApiView.as_view(), name='cart_current_status_detail'),
+
+    path('fav_item/', FavoriteItemListAPIView.as_view(), name='fav_item_list'),
+    path('fav_item/<int:pk>/', FavoriteItemDetailAPIView.as_view(), name='fav_item_detail'),
+    path('fav_item/create/', FavoriteItemCreateAPIView.as_view(), name='fav_item_create'),
+
+    path('check/', CheckListAPIView.as_view(), name='check_list'),
+    path('check/<int:pk>/', CheckCreateAPIView.as_view(), name='check_detail'),
 ]

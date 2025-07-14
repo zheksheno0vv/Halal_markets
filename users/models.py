@@ -1,3 +1,4 @@
+from enum import unique
 from django.contrib.auth.models import AbstractUser
 from django.core.mail import send_mail
 from django.db import models
@@ -8,7 +9,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 class UserProfile(AbstractUser):
     email = models.EmailField(unique=True)
-    phone_number = PhoneNumberField()
+    phone_number = PhoneNumberField(unique=True, region='KG')
 
     def __str__(self):
         return self.username
@@ -28,3 +29,4 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         [reset_password_token.user.email],
         fail_silently=False,
     )
+

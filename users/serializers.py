@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django_rest_passwordreset.models import ResetPasswordToken
 from django.contrib.auth import authenticate
 
+from users.models import UserProfile
+
 User = get_user_model()
 
 
@@ -114,3 +116,10 @@ class VerifyResetCodeSerializer(serializers.Serializer):
         user.set_password(new_password)
         user.save()
         token.delete()
+
+
+class UserProfilesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = '__all__'
+

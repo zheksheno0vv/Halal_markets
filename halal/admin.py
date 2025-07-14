@@ -11,3 +11,7 @@ admin.site.register(OrderItem)
 admin.site.register(Review)
 admin.site.register(Cart)
 admin.site.register(CartItem)
+admin.site.register(Favorite)
+admin.site.register(FavoriteItem)
+admin.site.register(Check)
+

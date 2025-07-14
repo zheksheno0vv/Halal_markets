@@ -45,7 +45,7 @@ class ProductImage(models.Model):
 
 
 class Customer(models.Model):
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    user = models.OneToOneField(BuyerProfile, on_delete=models.CASCADE)
     phone = models.CharField(max_length=20, blank=True)
     address = models.TextField(blank=True)
 
@@ -83,7 +83,7 @@ class Review(models.Model):
 
 
 class Cart(models.Model):
-    user_cart = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer_carts')
+    user_cart = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE, related_name='buyer_carts')
 
     class Meta:
         unique_together = ('user_cart',)
@@ -110,3 +110,32 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f'{self.cart}, {self.items}, {self.quantity}'
+
+
+
+class Favorite(models.Model):
+    favorite_user = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE, related_name='favorite_user')
+    created_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.favorite_user}'
+
+
+class FavoriteItem(models.Model):
+    favorite = models.ForeignKey(Favorite, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='clothes_favorite')
+
+    def __str__(self):
+        return f'{self.product}'
+
+
+class Check(models.Model):
+    title = models.CharField(max_length=32)
+    description = models.CharField(max_length=64)
+    date_purchase = models.DateField(auto_now_add=True)
+    delivery_date = models.DateField(auto_now_add=True)
+    product_name = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='check_product')
+    quantity = models.PositiveSmallIntegerField(default=1)
+    delivery = models.CharField(max_length=32)
+    delivery_text = models.CharField(max_length=32)
+    user_buyer = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE, related_name='user_buyer')

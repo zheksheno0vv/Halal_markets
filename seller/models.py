@@ -1,3 +1,4 @@
+from enum import unique
 from django.db import models
 from decimal import Decimal
 from users.models import *
@@ -7,10 +8,14 @@ class SellerProfile(models.Model):
     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='seller_profile')
     shop_name = models.CharField(max_length=100)
     full_name = models.CharField(max_length=255)
-    phone_number = models.CharField(max_length=20)
-    email = models.EmailField()
+    phone_number = PhoneNumberField(unique=True, region='KG')
+    email = models.EmailField(unique=True)
     image = models.ImageField(upload_to='sellers/', blank=True, null=True)
     description = models.TextField(blank=True)
+
+
+    class Meta:
+        verbose_name = 'Продавец'
 
     def __str__(self):
         return self.shop_name
@@ -110,4 +115,17 @@ class ReviewReply(models.Model):
         return f"Reply to {self.review}"
 
 
+
+class BuyerProfile(models.Model):
+    first_name = models.CharField(max_length=54)
+    last_name = models.CharField(max_length=54)
+    email = models.EmailField(unique=True)
+    address = models.CharField(max_length=100)
+    phone = PhoneNumberField(unique=True, region='KG')
+
+    class Meta:
+        verbose_name = 'Клиент'
+
+    def __str__(self):
+        return self.first_name
 

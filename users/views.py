@@ -55,3 +55,19 @@ def verify_reset_code(request):
         return Response({'message': 'Пароль успешно сброшен.'}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UserProfilesListAPIView(generics.ListAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfilesSerializer
+
+
+    def get_queryset(self):
+        return UserProfile.objects.filter(username=self.request.user.username)
+
+class UserProfilesDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfilesSerializer
+
+
+    def get_queryset(self):
+        return UserProfile.objects.filter(username=self.request.user.username)

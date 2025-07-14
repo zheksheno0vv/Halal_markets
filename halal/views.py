@@ -55,3 +55,30 @@ class CartItemStatusListApiView(generics.ListAPIView):
 class CartItemStatusDetailApiView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CartItem.objects.filter(status='в пути')
     serializer_class = CartItemListSerializer
+
+
+class FavoriteViewSet(viewsets.ModelViewSet):
+    queryset = Favorite.objects.all()
+    serializer_class = FavoriteSerializer
+
+
+class FavoriteItemListAPIView(generics.ListAPIView):
+    queryset = FavoriteItem.objects.all()
+    serializer_class = FavoriteItemSerializer
+
+class FavoriteItemDetailAPIView(generics.RetrieveAPIView):
+    queryset = FavoriteItem.objects.all()
+    serializer_class = FavoriteItemSerializer
+
+
+
+class FavoriteItemCreateAPIView(generics.CreateAPIView):
+    serializer_class = FavoriteItemSerializer
+
+
+class CheckListAPIView(generics.ListAPIView):
+    queryset = Check.objects.all()
+    serializer_class = CheckSerializer
+
+class CheckCreateAPIView(generics.CreateAPIView):
+    serializer_class = CheckSerializer
