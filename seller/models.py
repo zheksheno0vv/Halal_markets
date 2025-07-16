@@ -1,7 +1,39 @@
 from enum import unique
 from django.db import models
 from decimal import Decimal
-from users.models import *
+
+
+from django.contrib.auth.models import AbstractUser
+from django.core.mail import send_mail
+from django.dispatch import receiver
+from django_rest_passwordreset.signals import reset_password_token_created
+from phonenumber_field.modelfields import PhoneNumberField
+
+
+class UserProfile(AbstractUser):
+    email = models.EmailField(unique=True)
+    phone_number = PhoneNumberField(unique=True, region='KG')
+
+    def __str__(self):
+        return self.username
+
+
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    import random
+    code = random.randint(1000, 9999)
+    reset_password_token.key = str(code)
+    reset_password_token.save()
+
+    send_mail(
+        "Сброс пароля",
+        f"Ваш код для сброса пароля: {code}",
+        "noreply@example.com",
+        [reset_password_token.user.email],
+        fail_silently=False,
+    )
+
+
 
 
 class SellerProfile(models.Model):
@@ -12,6 +44,7 @@ class SellerProfile(models.Model):
     email = models.EmailField(unique=True)
     image = models.ImageField(upload_to='sellers/', blank=True, null=True)
     description = models.TextField(blank=True)
+    is_blocked = models.BooleanField(default=False)
 
 
     class Meta:
@@ -21,15 +54,31 @@ class SellerProfile(models.Model):
         return self.shop_name
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=100)
+class BuyerProfile(models.Model):
+    username = models.CharField(max_length=32, unique=True)
+    first_name = models.CharField(max_length=54)
+    last_name = models.CharField(max_length=54)
+    image = models.ImageField(upload_to='image_buyer/')
+    email = models.EmailField(unique=True)
+    address = models.CharField(max_length=100)
+    phone = PhoneNumberField(unique=True, region='KG')
+
+    class Meta:
+        verbose_name = 'Клиент'
 
     def __str__(self):
-        return self.name
+        return self.first_name
+
+
+class Category(models.Model):
+    category_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.category_name
 
 
 class Product(models.Model):
-    seller = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='products')
+    seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE, related_name='products')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
 
     product_name = models.CharField(max_length=100)
@@ -72,7 +121,7 @@ class Delivery(models.Model):
         ('canceled', 'Отменено')
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='deliveries')
-    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='purchases')
+    buyer = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE, related_name='purchases')
     quantity = models.PositiveIntegerField(default=1)
     delivery_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -96,7 +145,7 @@ class DeliveryItem(models.Model):
 
 class Review(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE, related_name='reviews')
     text = models.TextField()
     rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Рейтинг")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -107,7 +156,7 @@ class Review(models.Model):
 
 class ReviewReply(models.Model):
     review = models.OneToOneField(Review, on_delete=models.CASCADE, related_name='reply')
-    seller = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='review_replies')
+    seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE, related_name='review_replies')
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -116,16 +165,4 @@ class ReviewReply(models.Model):
 
 
 
-class BuyerProfile(models.Model):
-    first_name = models.CharField(max_length=54)
-    last_name = models.CharField(max_length=54)
-    email = models.EmailField(unique=True)
-    address = models.CharField(max_length=100)
-    phone = PhoneNumberField(unique=True, region='KG')
-
-    class Meta:
-        verbose_name = 'Клиент'
-
-    def __str__(self):
-        return self.first_name
 

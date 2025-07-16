@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'halal',
-    'users',
     "phonenumber_field",
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -130,12 +129,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
-AUTH_USER_MODEL = 'users.UserProfile'
+AUTH_USER_MODEL = 'seller.UserProfile'
 
 
 # Default primary key field type

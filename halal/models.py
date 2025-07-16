@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from seller.models import *
-from users.models import UserProfile
 from django.db.models import Sum
 
 
@@ -15,6 +14,8 @@ class Category(models.Model):
 
 class Brand(models.Model):
     brand_name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='brand_image/', null=True, blank=True)
+
 
     def __str__(self):
         return self.brand_name
@@ -44,17 +45,9 @@ class ProductImage(models.Model):
     image = models.ImageField(upload_to="product_images/")
 
 
-class Customer(models.Model):
-    user = models.OneToOneField(BuyerProfile, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=20, blank=True)
-    address = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.user.username
-
 
 class Order(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=[
         ('pending', 'В ожидании'),
@@ -76,7 +69,7 @@ class OrderItem(models.Model):
 
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name="reviews", on_delete=models.CASCADE)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE)
     rating = models.PositiveSmallIntegerField(choices=[(i, str(i)) for i in range(1, 6)])
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -131,11 +124,9 @@ class FavoriteItem(models.Model):
 
 class Check(models.Model):
     title = models.CharField(max_length=32)
-    description = models.CharField(max_length=64)
     date_purchase = models.DateField(auto_now_add=True)
     delivery_date = models.DateField(auto_now_add=True)
     product_name = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='check_product')
     quantity = models.PositiveSmallIntegerField(default=1)
-    delivery = models.CharField(max_length=32)
     delivery_text = models.CharField(max_length=32)
     user_buyer = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE, related_name='user_buyer')
